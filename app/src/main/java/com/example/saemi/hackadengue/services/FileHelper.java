@@ -1,4 +1,4 @@
-package com.example.saemi.hackadengue;
+package com.example.saemi.hackadengue.services;
 
 /**
  * Created by SAEMI on 08/04/2016.
@@ -10,11 +10,9 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class FileHelper {

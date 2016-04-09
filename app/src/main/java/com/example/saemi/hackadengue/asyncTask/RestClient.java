@@ -1,4 +1,4 @@
-package com.example.saemi.hackadengue;
+package com.example.saemi.hackadengue.asyncTask;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,7 +12,7 @@ import retrofit.converter.GsonConverter;
  */
 public class RestClient {
 
-    private UploadService  uploadService;
+    private UploadService uploadService;
     private String URL ="https://github.com/GDGSJC/hackathon-aedes/";
 
     public RestClient(){

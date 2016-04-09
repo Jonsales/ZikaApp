@@ -1,15 +1,10 @@
-package com.example.saemi.hackadengue;
+package com.example.saemi.hackadengue.asyncTask;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 /**

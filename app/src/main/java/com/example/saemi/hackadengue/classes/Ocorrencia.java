@@ -1,4 +1,4 @@
-package com.example.saemi.hackadengue;
+package com.example.saemi.hackadengue.classes;
 
 import com.google.gson.annotations.SerializedName;
 

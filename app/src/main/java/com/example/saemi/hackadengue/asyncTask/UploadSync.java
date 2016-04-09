@@ -1,4 +1,4 @@
-package com.example.saemi.hackadengue;
+package com.example.saemi.hackadengue.asyncTask;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -7,6 +7,8 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.example.saemi.hackadengue.services.FileHelper;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
