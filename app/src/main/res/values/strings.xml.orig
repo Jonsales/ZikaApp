@@ -14,8 +14,12 @@
         <item>Casa/Prédio abandonado</item>
         <item>Outros</item>
     </string-array>
+<<<<<<< HEAD
+    <string name="title_activity_splash_screen">SplashScreenActivity</string>
+=======
 
     <string name = "ativa_gps">Ative o GPS</string>
     <string name = "cancelar">Cancelar</string>
     <string name="configuracoes">Configurações</string>
+>>>>>>> maps
 </resources>
