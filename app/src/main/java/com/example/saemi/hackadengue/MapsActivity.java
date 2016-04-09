@@ -1,11 +1,14 @@
 package com.example.saemi.hackadengue;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Criteria;
@@ -19,23 +22,39 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.example.saemi.hackadengue.VolleyConnection.Connection;
 import com.example.saemi.hackadengue.asyncTask.BaseApplication;
 import com.example.saemi.hackadengue.asyncTask.NetworkInterceptor;
+import com.example.saemi.hackadengue.services.Constants;
+import com.example.saemi.hackadengue.services.DatabaseHelper;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,9 +66,16 @@ import java.util.List;
 
 import retrofit.mime.TypedFile;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener, PopupMenu.OnMenuItemClickListener {
 
     private GoogleMap mMap;
+
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1;
     Uri uriImagem = null;
     static TextView detalhesImg = null;
@@ -62,6 +88,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private double longitude;
     private String tipo;
     private String descricao;
+    private AlertDialog alerta;
+    private Connection conn;
+    private JSONArray jsonArray;
 
 
     Bitmap bitmap = null;
@@ -71,6 +100,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         foto = this;
+        jsonArray = new JSONArray();
 
         //detalhesImg = (TextView) findViewById(R.id.textView);
         //endereco = (TextView) findViewById(R.id.textView2);
@@ -123,9 +153,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        connectionGetPoints();
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //setUpMapIfNeeded();
+        ativaGPS();
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        boolean GPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (GPSEnabled == true) {
+            mGoogleApiClient.connect();
+        }
+    }
 
     private TypedFile getFileTyped(Bitmap image) {
 
@@ -158,6 +200,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private NetworkInterceptor getNetworkInterceptor(){
         BaseApplication app = (BaseApplication)this.getApplication();
         return app.getNetworkInterceptor();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        /*
+         * Google Play services can resolve some errors it detects.
+         * If the error has a resolution, try sending an Intent to
+         * start a Google Play services activity that can resolve
+         * error.
+         */
+        if (connectionResult.hasResolution()) {
+            try {
+                // Start an Activity that tries to resolve the error
+                connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                /*
+                 * Thrown if Google Play services canceled the original
+                 * PendingIntent
+                 */
+            } catch (IntentSender.SendIntentException e) {
+                // Log the error
+                e.printStackTrace();
+            }
+        } else {
+            /*
+             * If no resolution is available, display a dialog to the
+             * user with the error.
+             */
+            Log.i("", "Location services connection failed with code " + connectionResult.getErrorCode());
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return false;
     }
 
     private class UploadFileExecutor extends AsyncTask<Object, Void, String>{
@@ -379,16 +464,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
         if(mMap != null){
-            setUpMap();
+            setUpMapIfNeeded();
         }
 
     }
 
-   /* private void setPinLocais(){
+   private void setPinLocais(){
 
         mMap.clear();
 
-        DatabaseHelper db = new DatabaseHelper(Home.this);
+       if(jsonArray.length()>0){
+           for(int x=0; x<jsonArray.length();x++){
+               JSONObject obj1 = null;
+               try {
+                    obj1 = jsonArray.getJSONObject(x);
+                    JSONArray coord = new JSONArray(obj1.getString("coordinates"));
+
+                   double lat = coord.getDouble(1);
+                   double longi = coord.getDouble(0);
+                   Log.i("Coordenadas API", lat +" / " + longi);
+                   Log.i("LAT ATUAL", latitude + " / " + longitude);
+                   LatLng coordPoint = new LatLng(lat, longi);
+
+                   MarkerOptions marker = new MarkerOptions()
+                           .position(coordPoint)
+                           .draggable(false)
+                           .icon(BitmapDescriptorFactory.fromResource(R.drawable.zika_small))
+                           .title(obj1.getString("description"));
+                   mMap.addMarker(marker);
+                   mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 18));
+
+
+                    //arrayListItens.add(new ItemCliente(obj1.getString("name"), (emails.getJSONObject(0).getString("email").replace("u'", "")).replace("'", "")));
+                    //arrayvalues.add(obj1.getString("id"));
+
+               } catch (JSONException e) {
+                   e.printStackTrace();
+               }
+           }
+
+       }
+
+
+        /*DatabaseHelper db = new DatabaseHelper(Home.this);
 
         if(db.checkDataBase()==true) {
             List<Local> locais = db.getLocais();
@@ -406,11 +524,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 18));
             db.close();
-        }
-    }*/
+        }*/
+    }
 
 
-    public void setUpMap() {
+    /***************************************FUNCTIONS MAPS************************************************/
+
+    /*public void setUpMap() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             return;
@@ -438,6 +558,117 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.animateCamera(CameraUpdateFactory.zoomTo(20));
         }else{
             Toast.makeText(this, "Localização indisponível", Toast.LENGTH_SHORT).show();
+        }
+
+    }*/
+
+    public void ativaGPS() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        boolean GPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (!GPSEnabled) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.app_name);
+            builder.setMessage(R.string.ativa_gps);
+            builder.setCancelable(false);
+            builder.setNegativeButton(R.string.cancelar, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface arg0, int arg1) {
+                    ativaGPS();
+                }
+            });
+            builder.setPositiveButton(R.string.configuracoes, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface arg0, int arg1) {
+                    startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                }
+            });
+            alerta = builder.create();
+            alerta.show();
+        } else {
+            //verificaSharedPreferences();
+            setUpMapIfNeeded();
+            getWindow().setSoftInputMode(
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+            // Create the LocationRequest object
+            mLocationRequest = LocationRequest.create()
+                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                    .setInterval(2 * 1000)        // 10 seconds, in milliseconds
+                    .setFastestInterval(1 * 1000); // 1 second, in milliseconds
+
+
+            //drawRoute();
+            //getRoute(new LatLng(Latitude, Longitude), new LatLng(-23.217032, -45.894594));
+        }
+
+    }
+
+    private void setUpMapIfNeeded() {
+        if (mMap == null) {
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMap();
+        }
+    }
+
+    private void handleNewLocation(Location location) {
+        double currentLatitude = location.getLatitude();
+        double currentLongitude = location.getLongitude();
+
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+
+        mMap.setMyLocationEnabled(true);
+        UiSettings settings = mMap.getUiSettings();
+        settings.setAllGesturesEnabled(true);
+        settings.setMyLocationButtonEnabled(true);
+        settings.setZoomControlsEnabled(false);
+        settings.setZoomGesturesEnabled(true);
+        settings.setCompassEnabled(false);
+        settings.setIndoorLevelPickerEnabled(false);
+
+        //if(flagMap==true)
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 18));
+        setPinLocais();
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (location == null) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        } else {
+            handleNewLocation(location);
+        }
+    }
+
+    private void connectionGetPoints() {
+        Connection connection = new Connection(Constants.URL_GET_OCORRENCIAS, Request.Method.GET, "getPoints", this);
+        connection.callByJsonStringRequest();
+    }
+
+    private JSONArray stringToJson(String response) throws JSONException {
+        JSONObject obj1 = new JSONObject(response);
+        JSONArray obj = obj1.getJSONArray("result");
+        this.jsonArray = obj;
+        return obj;
+
+    }
+
+    public static void returnConnectionGetClient(Activity activity, String response){
+        ((MapsActivity)activity).returnGet(response);
+    }
+    public void returnGet(String response){
+        JSONArray obj = new JSONArray();
+        try {
+            obj = stringToJson(response);
+            Log.i(null, response);
+            setPinLocais();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
     }

@@ -25,7 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     // Database Name
-    private static final String DATABASE_NAME = Environment.getExternalStorageDirectory() + "/Android/data/br.gtac.bestprice/database/bestprice.db";
+    private static final String DATABASE_NAME = Environment.getExternalStorageDirectory() + "/Android/data/br/database/hackadengue.db";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -51,7 +51,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return  ret;
     }
 
-    public long deleteOfertaProd(String id){
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+    }
+
+    /*public long deleteOfertaProd(String id){
         SQLiteDatabase db = getWritableDatabase();
         Constants ct = new Constants();
         long ret = 0;
@@ -170,7 +180,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /*****************************************TABELA LOCAL*****************************************************/
 
-    public long addLocal(Local obj) {
+   /* public long addLocal(Local obj) {
 
         SQLiteDatabase db = getWritableDatabase();
 
@@ -187,5 +197,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return ret;
 
-    }
+    }*/
 }
