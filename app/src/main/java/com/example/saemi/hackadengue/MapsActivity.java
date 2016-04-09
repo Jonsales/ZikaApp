@@ -20,10 +20,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
 import com.example.saemi.hackadengue.asyncTask.BaseApplication;
 import com.example.saemi.hackadengue.asyncTask.NetworkInterceptor;
@@ -53,7 +50,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public ImageView uploadImage;
     MapsActivity foto = null;
     LocationListener locationListener;
-    private Button uploadButton, photoButton,sendButton;
+    private ImageButton uploadButton, photoButton,sendButton;
+
     private static final String TAG = MainActivity.class.getSimpleName();
     private double latitude;
     private double longitude;
@@ -71,8 +69,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //detalhesImg = (TextView) findViewById(R.id.textView);
         //endereco = (TextView) findViewById(R.id.textView2);
-        uploadImage = (ImageView) findViewById(R.id.imageView2);
-        photoButton = (Button) findViewById(R.id.tirar);
+        //uploadImage = (ImageView) findViewById(R.id.imageView2);
+        photoButton = (ImageButton) findViewById(R.id.photoButton);
 
         photoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,7 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        sendButton = (Button) findViewById(R.id.salvar);
+       /* sendButton = (ImageButton) findViewById(R.id.salvar);
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,6 +105,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 executor.execute(descricao, tipo);
             }
         });
+        /*
+
         uploadButton = (Button) findViewById(R.id.upLoad);
 
         uploadButton.setOnClickListener(new View.OnClickListener() {
@@ -120,6 +120,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+        */
     }
 
 
