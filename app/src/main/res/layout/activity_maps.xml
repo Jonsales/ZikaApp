@@ -3,50 +3,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/map"
     android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.example.saemi.hackadengue.MapsActivity">
-
-<LinearLayout
-    android:orientation="horizontal"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView2"
-        android:background="#0b0101" />
-
-</LinearLayout>
+    android:layout_height="wrap_content"
+    tools:context="com.example.saemi.hackadengue.MapsActivity"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.98"
+            android:orientation="vertical"></RelativeLayout>
 
-
-
-        <Button
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/salvar"
-            android:text="Enviar dados"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tirar"
-            android:id="@+id/tirar" />
+            android:layout_weight="0.02">
 
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/upLoad"
-            android:text="Enviar foto"/>
+
+            <ImageButton
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_centerInParent="true"
+                android:text="@string/tirar"
+                android:id="@+id/photoButton"
+                android:background="@drawable/photo"/>
+
+
+        </RelativeLayout>
+
 
     </LinearLayout>
-
-
-    </fragment>
+</fragment>
