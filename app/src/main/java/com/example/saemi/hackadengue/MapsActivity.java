@@ -32,7 +32,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 
 import java.io.File;
@@ -41,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import retrofit.mime.TypedFile;
 
@@ -380,6 +383,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     }
+
+   /* private void setPinLocais(){
+
+        mMap.clear();
+
+        DatabaseHelper db = new DatabaseHelper(Home.this);
+
+        if(db.checkDataBase()==true) {
+            List<Local> locais = db.getLocais();
+
+            if (locais.size() > 0) {
+                for (Local local : locais) {
+
+                    MarkerOptions marker = new MarkerOptions()
+                            .position(new LatLng(Double.parseDouble(local.getLatitude()), Double.parseDouble(local.getLongitude())))
+                            .draggable(false)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.point_green))
+                            .title(local.getLocal());
+                    mMap.addMarker(marker);
+                }
+            }
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 18));
+            db.close();
+        }
+    }*/
 
 
     public void setUpMap() {
