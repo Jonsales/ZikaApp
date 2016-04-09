@@ -7,5 +7,10 @@
 # Location of the SDK. This is only used by Gradle.
 # For customization when using a Version Control System, please read the
 # header note.
+<<<<<<< HEAD
+#Sat Apr 09 10:53:26 BRT 2016
+sdk.dir=C\:\\Users\\ALUNOS.ESP-LAB\\AppData\\Local\\Android\\Sdk
+=======
 #Sat Apr 09 11:25:21 BRT 2016
 sdk.dir=C\:\\Users\\Vanilson\\AppData\\Local\\Android\\sdk
+>>>>>>> splash_vl
